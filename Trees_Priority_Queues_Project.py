@@ -2,7 +2,7 @@
 #Trees_Priority_Queues_Project
 #Binary_Tree_Project.py
 #11/6/25
-#
+#This program implements a binary expression tree that can build itself from a postfix expression
 
 # stack.py
 class Stack:
