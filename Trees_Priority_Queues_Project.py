@@ -2,7 +2,7 @@
 #Trees_Priority_Queues_Project
 #Triage_System
 #11/6/25
-#
+#This program accesses a triage system using a priority queue to manage patients based on severity and arrival time
 
 import heapq
 
@@ -58,4 +58,44 @@ class TriageSystem:
     def Clear(self):
         self._queue = []
 
+# test data
+def test_triage_system():
+    # Create triage system
+    triage = TriageSystem()
+    
+    # name and severity
+    patients = [
+        ("Sofia", 5),
+        ("Bob", 2),
+        ("Charlie", 4),
+        ("Diana", 3),
+        ("Eli", 1),
+        ("Tom", 4),
+        ("Alice", 5),
+        ("Rachel", 4)
+    ]
+    
+    # Add patients
+    print("Adding patients to triage system...")
+    for name, severity in patients:
+        triage.AddPatient(name, severity)
+        print(f"  Added: {name} (Severity {severity})")
+    
+    print(f"\nTotal patients in queue: {triage.Size()}")
+    
+    # Peek at next patient
+    next_patient = triage.PeekNext()
+    if next_patient:
+        print(f"Next patient to be seen: {next_patient[0]} (Severity {next_patient[1]})")
+    
+    # Process patients
+    print("\nProcessing patients:")
+    while not triage.IsEmpty():
+        name, severity = triage.ProcessNext()
+        print(f"Now treating: {name} (Severity {severity})")
+    
+    print(f"\nQueue is now empty: {triage.IsEmpty()}")
 
+
+if __name__ == "__main__":
+    test_triage_system()
