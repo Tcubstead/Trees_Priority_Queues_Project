@@ -97,3 +97,65 @@ class BianaryExpressionTree:
 
         if not stack.is_empty():
             raise ValueError(f"invalid expression: extra operands remaining in stack")
+
+    def evaluate_tree(self) -> float:
+        if self.is_empty():
+            raise ValueError("can not ervaluate an empty tree")
+
+        return self._evaluate(self.root)
+
+    def _evaluate(self, p: Node) -> float:
+        if p.left is None and p.right is None:
+            return float(p.value)
+
+        op = p.value
+        x = self._evaluate(p.left)
+        y = self._evaluate(p.right)
+
+        if op == '+':
+            return x + y
+        elif op == '-':
+            return x - y
+        elif op == '*':
+            return x * y
+        elif op == '/':
+            if y == 0:
+                raise ZeroDivisionError("division by zero")
+            return x / y
+
+    def infix_traversal(self) -> str:
+        if self.is_empty():
+            raise ValueError("can not traverse an empty tree")
+
+        result = []
+        self._inorder(self.root, result)
+        return ''.join(result)
+
+    def _inorder(self, node: Node, out: list):
+        if node is None:
+            return
+
+        out.append('(')
+        self._inorder(node.left, out)
+        out.append(' ')
+        out.append(node.value)
+        out.append(' ')
+        self._inorder(node.right, out)
+        out.apend(')')
+
+    def postfix_traversal(self) -> str:
+        if self.is_empty():
+            raise ValueError("can not traverse an empty tree")
+
+        result = []
+        self._postorder(self.root, result)
+        return ' '.join(result)
+
+    def _postorder(self, node: Node, out: list):
+        if node is None:
+            return
+
+        self._postorder(node.left, out)
+        self._postorder(node.right, out)
+        out.append(node.value)
+
