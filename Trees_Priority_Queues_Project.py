@@ -1,40 +1,8 @@
-#Thomas Cubstead
+﻿#Thomas Cubstead
 #Trees_Priority_Queues_Project
-#Binary_Tree_Project.py
+#Binary_Tree_Traversal_Project
 #11/6/25
 #
-
-# stack.py
-class Stack:
-    """Stack implementation using Python list."""
-    
-    def __init__(self):
-        """Create an empty stack."""
-        self._items = []
-    
-    def is_empty(self):
-        """Return True if stack is empty."""
-        return len(self._items) == 0
-    
-    def push(self, item):
-        """Add item to top of stack."""
-        self._items.append(item)
-    
-    def pop(self):
-        """Remove and return top item from stack."""
-        if self.is_empty():
-            raise IndexError("pop from empty stack")
-        return self._items.pop()
-    
-    def top(self):
-        """Return top item without removing it."""
-        if self.is_empty():
-            raise IndexError("top from empty stack")
-        return self._items[-1]
-    
-    def size(self):
-        """Return number of items in stack."""
-        return len(self._items)
 
 #class for the individual nodes of the binary expression tree
 class Node:
@@ -43,182 +11,124 @@ class Node:
         self.left = None
         self.right = None
 
-#Binary Expression Tree class
-class BinaryExpressionTree:
-    def __init__(self):
-        self.root = None
-
-    def is_empty(self) -> bool:
-        return self.root is None
-
-    def clear_tree(self):
-        self.root = None
-
-    def build_from_postfix(self, postfix: str):
-        if not postfix or postfix.strip() == "":
-            raise ValueError("Empty postfix expression")
-        
-        tokens = postfix.split()
-        stack = Stack()  # Use Stack class instead of Python list
-        operators = {'+', '-', '*', '/'}
-        
-        for token in tokens:
-            # Check if token is an operator
-            if token in operators:
-                # Need two operands for binary operator
-                if stack.is_empty():
-                    raise ValueError("Stack is empty - insufficient operands")
-                
-                # Create operator node
-                node = Node(token)
-                
-                # Pop right operand
-                if not stack.is_empty():
-                    node.right = stack.top()
-                    stack.pop()
-                else:
-                    raise ValueError("Stack is empty - insufficient operands")
-                
-                # Pop left operand
-                if not stack.is_empty():
-                    node.left = stack.top()
-                    stack.pop()
-                else:
-                    raise ValueError("Stack is empty - insufficient operands")
-                
-                # Push the new subtree back onto stack
-                stack.push(node)
-            else:
-                # Token should be a number
-                try:
-                    # Validate it's a valid number
-                    float(token)
-                    # Create leaf node for operand
-                    node = Node(token)
-                    stack.push(node)
-                except ValueError:
-                    raise ValueError(f"Unsupported token: '{token}'")
-        
-        # After processing all tokens, should have exactly one tree
-        if stack.is_empty():
-            raise ValueError("Invalid expression: no result")
-        
-        # Pop the expression tree and store in root
-        self.root = stack.top()
-        stack.pop()
-        
-        # Check if there are unused tokens
-        if not stack.is_empty():
-            raise ValueError(f"Invalid expression: unused tokens left on stack")
+#Binary Tree class with traversal and reconstruction methods
+class BinaryTree:
+    def __init__(self, root=None):
+        self.root = root
     
-    # Evaluate the expression tree and return the result
-    def evaluate_tree(self) -> float:
-        if self.is_empty():
-            raise ValueError("can not ervaluate an empty tree")
-
-        return self._evaluate(self.root)
-
-    #recursively evaluate subtrees
-    def _evaluate(self, p: Node) -> float:
-        if p.left is None and p.right is None:
-            return float(p.value)
-
-        op = p.value
-        x = self._evaluate(p.left)
-        y = self._evaluate(p.right)
-
-        if op == '+':
-            return x + y
-        elif op == '-':
-            return x - y
-        elif op == '*':
-            return x * y
-        elif op == '/':
-            if y == 0:
-                raise ZeroDivisionError("division by zero")
-            return x / y
+    # Traversal Methods
+    def preorder_traversal(self):
+        """Preorder: Root → Left → Right"""
+        result = []
+        self._preorder(self.root, result)
+        return result
     
-    #return infix representation of the expression tree with parentheses
-    def infix_traversal(self) -> str:
-        if self.is_empty():
-            raise ValueError("can not traverse an empty tree")
-
+    def _preorder(self, node, result):
+        if node:
+            result.append(node.value)
+            self._preorder(node.left, result)
+            self._preorder(node.right, result)
+    
+    def inorder_traversal(self):
+        """Inorder: Left → Root → Right"""
         result = []
         self._inorder(self.root, result)
-        return ''.join(result)
-
-    #helper for infix traversal
-    def _inorder(self, node: Node, out: list):
-        if node is None:
-            return
-
-        out.append('(')
-        self._inorder(node.left, out)
-        out.append(' ')
-        out.append(node.value)
-        out.append(' ')
-        self._inorder(node.right, out)
-        out.append(')')
+        return result
     
-    #return postfix representation of the expression tree
-    def postfix_traversal(self) -> str:
-        if self.is_empty():
-            raise ValueError("can not traverse an empty tree")
-
+    def _inorder(self, node, result):
+        if node:
+            self._inorder(node.left, result)
+            result.append(node.value)
+            self._inorder(node.right, result)
+    
+    def postorder_traversal(self):
+        """Postorder: Left → Right → Root"""
         result = []
         self._postorder(self.root, result)
-        return ' '.join(result)
-
-    #helper for postfix traversal
-    def _postorder(self, node: Node, out: list):
-        if node is None:
-            return
-
-        self._postorder(node.left, out)
-        self._postorder(node.right, out)
-        out.append(node.value)
-
-def main():
-# Test data from the Evaluating Expressions Project
-    postfix_expressions = [
-        "5 3 +",
-        "8 2 - 3 +",
-        "5 3 8 * +",
-        "6 2 / 3 +",
-        "5 8 + 3 -",
-        "5 3 + 8 *",
-        "8 2 3 * + 6 -",
-        "5 3 8 * + 2 /",
-        "8 2 + 3 6 * -",
-        "5 3 + 8 2 / -"
-    ]
+        return result
     
-    print("----- Binary Expression Tree -----")
+    def _postorder(self, node, result):
+        if node:
+            self._postorder(node.left, result)
+            self._postorder(node.right, result)
+            result.append(node.value)
     
-    for postfix in postfix_expressions:
-        tree = BinaryExpressionTree()
+    # Tree Reconstruction Methods
+    @staticmethod
+    def from_preorder_inorder(preorder, inorder):
+        """Reconstruct tree from preorder and inorder traversals."""
+        if not preorder or not inorder:
+            return BinaryTree(None)
         
-        try:
-            # Build from postfix expression
-            tree.build_from_postfix(postfix)
+        def build(pre_start, pre_end, in_start, in_end):
+            if pre_start > pre_end or in_start > in_end:
+                return None
             
-            # Get infix and postfix representations
-            infix = tree.infix_traversal()
-            postfix_result = tree.postfix_traversal()
+            # First element in preorder is root
+            root_val = preorder[pre_start]
+            root = Node(root_val)
             
-            # Evaluate the expression
-            result = tree.evaluate_tree()
+            # Find root in inorder
+            root_idx = inorder.index(root_val)
             
-            # Display results
-            print(f"Infix Expression: {infix}")
-            print(f"Postfix Expression: {postfix_result}")
-            print(f"Evaluated Result: {result}")
-            print()
+            # Number of nodes in left subtree
+            left_size = root_idx - in_start
             
-        except Exception as e:
-            print(f"Error processing '{postfix}': {e}")
-            print()
+            # Recursively build left and right subtrees
+            root.left = build(pre_start + 1, pre_start + left_size, 
+                            in_start, root_idx - 1)
+            root.right = build(pre_start + left_size + 1, pre_end, 
+                             root_idx + 1, in_end)
+            
+            return root
+        
+        root = build(0, len(preorder) - 1, 0, len(inorder) - 1)
+        return BinaryTree(root)
+    
+    @staticmethod
+    def from_postorder_inorder(postorder, inorder):
+        """Reconstruct tree from postorder and inorder traversals."""
+        if not postorder or not inorder:
+            return BinaryTree(None)
+        
+        def build(post_start, post_end, in_start, in_end):
+            if post_start > post_end or in_start > in_end:
+                return None
+            
+            # Last element in postorder is root
+            root_val = postorder[post_end]
+            root = Node(root_val)
+            
+            # Find root in inorder
+            root_idx = inorder.index(root_val)
+            
+            # Number of nodes in left subtree
+            left_size = root_idx - in_start
+            
+            # Recursively build left and right subtrees
+            root.left = build(post_start, post_start + left_size - 1, 
+                            in_start, root_idx - 1)
+            root.right = build(post_start + left_size, post_end - 1, 
+                             root_idx + 1, in_end)
+            
+            return root
+        
+        root = build(0, len(postorder) - 1, 0, len(inorder) - 1)
+        return BinaryTree(root)
+    
+    def display_tree(self):
+        """Display tree structure in a readable format."""
+        if not self.root:
+            return "Empty tree"
+        
+        lines = []
+        self._build_tree_string(self.root, 0, lines)
+        return '\n'.join(lines)
+    
+    def _build_tree_string(self, node, level, lines):
+        """Helper to build string representation of tree."""
+        if node:
+            self._build_tree_string(node.right, level + 1, lines)
+            lines.append('    ' * level + str(node.value))
+            self._build_tree_string(node.left, level + 1, lines)
 
-
-if __name__ == "__main__":
-    main()
